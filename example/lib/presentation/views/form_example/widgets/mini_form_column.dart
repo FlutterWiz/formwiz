@@ -36,7 +36,7 @@ class MiniFormColumnState extends State<MiniFormColumn> {
     super.initState();
 
     // Initialize form cubit
-    _formCubit = formwiz.FormCubit(validateOnChange: true);
+    _formCubit = formwiz.FormCubit();
 
     // Create field cubits with proper validators
     _nameCubit = formwiz.FormFieldCubit<String>(
@@ -47,7 +47,7 @@ class MiniFormColumnState extends State<MiniFormColumn> {
             return 'Name is required';
           }
           return null;
-        }, isRequired: true),
+        }, isRequired: true,),
       ],
     );
 
@@ -59,7 +59,7 @@ class MiniFormColumnState extends State<MiniFormColumn> {
             return 'Email is required';
           }
           return null;
-        }, isRequired: true),
+        }, isRequired: true,),
         formwiz.FormWizValidator<String>((value) {
           if (value == null || value.isEmpty) {
             return null;
@@ -225,7 +225,7 @@ class MiniFormColumnState extends State<MiniFormColumn> {
               decoration: BoxDecoration(border: Border.all(color: Colors.grey), borderRadius: BorderRadius.circular(4)),
               child: Row(
                 children: [
-                  Expanded(child: const Text('I agree to terms and conditions', style: TextStyle(fontSize: 16))),
+                  const Expanded(child: Text('I agree to terms and conditions', style: TextStyle(fontSize: 16))),
                   Checkbox(
                     value: termsAccepted,
                     onChanged: (value) {

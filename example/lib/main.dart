@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'presentation/views/form_example/form_example_view.dart';
+import 'package:formwiz_example/presentation/views/form_example/form_example_view.dart';
 
 void main() {
   runApp(const MyApp());

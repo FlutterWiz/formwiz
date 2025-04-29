@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'switch_field_data_column.dart';
+import 'package:formwiz_example/presentation/views/form_example/widgets/switch_field_data_column.dart';
 
 /// Example widget to showcase different configurations
 /// of the FormWizSwitch field.

@@ -12,13 +12,13 @@ class FormExampleView extends StatelessWidget {
         title: const Text('FormWiz Example'),
         backgroundColor: Theme.of(context).colorScheme.primaryContainer,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(24),
+      body: const Padding(
+        padding: EdgeInsets.all(24),
         child: SingleChildScrollView(
           child: Column(
             spacing: 24,
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: const [MiniFormColumn(), Divider(), SwitchFieldColumn()],
+            children: [MiniFormColumn(), Divider(), SwitchFieldColumn()],
           ),
         ),
       ),
