@@ -236,38 +236,78 @@ class _ExampleFormState extends State<_ExampleForm> {
             ),
             const SizedBox(height: 16),
             
-            // Notifications Switch
-            SwitchListTile(
-              title: const Text('Enable notifications'),
-              subtitle: const Text('You can toggle this to enable or disable notifications'),
-              value: notificationsEnabled,
-              onChanged: (value) {
-                setState(() {
-                  notificationsEnabled = value;
-                });
-              },
-              shape: const RoundedRectangleBorder(
-                borderRadius: BorderRadius.all(Radius.circular(4)),
-                side: BorderSide(color: Colors.grey),
+            // Notifications Switch - Custom implementation with non-clickable row
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.grey),
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Enable notifications',
+                          style: TextStyle(
+                            fontSize: 16,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'You can toggle this to enable or disable notifications',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey.shade600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Switch(
+                    value: notificationsEnabled,
+                    onChanged: (value) {
+                      setState(() {
+                        notificationsEnabled = value;
+                      });
+                    },
+                  ),
+                ],
               ),
             ),
             const SizedBox(height: 16),
             
-            // Terms Checkbox
-            CheckboxListTile(
-              title: const Text('I agree to terms and conditions'),
-              value: termsAccepted,
-              onChanged: (value) {
-                setState(() {
-                  termsAccepted = value ?? false;
-                  if (termsAccepted) {
-                    termsError = null;
-                  }
-                });
-              },
-              shape: const RoundedRectangleBorder(
-                borderRadius: BorderRadius.all(Radius.circular(4)),
-                side: BorderSide(color: Colors.grey),
+            // Terms Checkbox - Custom implementation with non-clickable row
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.grey),
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: const Text(
+                      'I agree to terms and conditions',
+                      style: TextStyle(
+                        fontSize: 16,
+                      ),
+                    ),
+                  ),
+                  Checkbox(
+                    value: termsAccepted,
+                    onChanged: (value) {
+                      setState(() {
+                        termsAccepted = value ?? false;
+                        if (termsAccepted) {
+                          termsError = null;
+                        }
+                      });
+                    },
+                  ),
+                ],
               ),
             ),
             if (termsError != null)
