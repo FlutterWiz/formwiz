@@ -1,83 +1,43 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:formwiz/formwiz.dart' as formwiz;
+import 'package:formwiz/domain/models/validation_model.dart' as formwiz;
+import 'package:formwiz/presentation/cubits/form/form_cubit.dart' as formwiz;
+import 'package:formwiz/presentation/cubits/form/form_state.dart' as formwiz;
+import 'package:formwiz/presentation/cubits/form_field/form_field_cubit.dart' as formwiz;
+import 'package:formwiz/presentation/cubits/form_field/form_field_state.dart' as formwiz;
+import 'package:formwiz_example/presentation/views/form_example/widgets/form_data_column.dart';
 
-import '../widgets/switch_example.dart';
-
-class FormExampleScreen extends StatelessWidget {
-  const FormExampleScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('FormWiz Example'),
-        backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'Form Example',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 24),
-              const _ExampleForm(),
-              const SizedBox(height: 32),
-              const Text(
-                'Switch Field Showcase',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 16),
-              const SwitchExamplesWidget(),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _ExampleForm extends StatefulWidget {
-  const _ExampleForm();
+class MiniFormColumn extends StatefulWidget {
+  const MiniFormColumn({super.key});
 
   @override
-  State<_ExampleForm> createState() => _ExampleFormState();
+  State<MiniFormColumn> createState() => MiniFormColumnState();
 }
 
-class _ExampleFormState extends State<_ExampleForm> {
+class MiniFormColumnState extends State<MiniFormColumn> {
   // Create FormCubit instance
   late final formwiz.FormCubit _formCubit;
-  
+
   // Use local state for switch and checkbox
   bool notificationsEnabled = true;
   bool termsAccepted = false;
   String? termsError;
-  
+
   // Text editing controllers
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
-  
+
   // Form field cubits
   late final formwiz.FormFieldCubit<String> _nameCubit;
   late final formwiz.FormFieldCubit<String> _emailCubit;
-  
+
   @override
   void initState() {
     super.initState();
-    
+
     // Initialize form cubit
     _formCubit = formwiz.FormCubit(validateOnChange: true);
-    
+
     // Create field cubits with proper validators
     _nameCubit = formwiz.FormFieldCubit<String>(
       name: 'name',
@@ -90,7 +50,7 @@ class _ExampleFormState extends State<_ExampleForm> {
         }, isRequired: true),
       ],
     );
-    
+
     _emailCubit = formwiz.FormFieldCubit<String>(
       name: 'email',
       validators: [
@@ -112,31 +72,28 @@ class _ExampleFormState extends State<_ExampleForm> {
         }),
       ],
     );
-    
+
     // Add fields to form
     _formCubit.addField(_nameCubit);
     _formCubit.addField(_emailCubit);
-    
+
     // Initialize form with empty values
-    _formCubit.initialize(initialValues: {
-      'name': '',
-      'email': '',
-    });
-    
+    _formCubit.initialize(initialValues: {'name': '', 'email': ''});
+
     // Listen to field changes to update controllers
     _nameCubit.stream.listen((state) {
       if (_nameController.text != state.model.value?.toString()) {
         _nameController.text = state.model.value?.toString() ?? '';
       }
     });
-    
+
     _emailCubit.stream.listen((state) {
       if (_emailController.text != state.model.value?.toString()) {
         _emailController.text = state.model.value?.toString() ?? '';
       }
     });
   }
-  
+
   @override
   void dispose() {
     _formCubit.close();
@@ -146,7 +103,7 @@ class _ExampleFormState extends State<_ExampleForm> {
     _emailController.dispose();
     super.dispose();
   }
-  
+
   // Validate all fields before submission
   bool validateForm() {
     // Validate terms
@@ -160,7 +117,7 @@ class _ExampleFormState extends State<_ExampleForm> {
         termsError = null;
       });
     }
-    
+
     return true;
   }
 
@@ -175,21 +132,15 @@ class _ExampleFormState extends State<_ExampleForm> {
             final formData = Map<String, dynamic>.from(state.values);
             formData['notifications'] = notificationsEnabled;
             formData['terms'] = termsAccepted;
-            
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text('Form submitted: $formData'),
-                backgroundColor: Colors.green,
-              ),
-            );
+
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text('Form submitted: $formData'), backgroundColor: Colors.green));
           }
-          
+
           if (state.hasBeenSubmitted && !state.isValid) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Please fix the errors in the form'),
-                backgroundColor: Colors.red,
-              ),
+              const SnackBar(content: Text('Please fix the errors in the form'), backgroundColor: Colors.red),
             );
           }
         },
@@ -214,7 +165,7 @@ class _ExampleFormState extends State<_ExampleForm> {
               },
             ),
             const SizedBox(height: 16),
-            
+
             // Email Field
             BlocBuilder<formwiz.FormFieldCubit<String>, formwiz.FormFieldCubitState<String>>(
               bloc: _emailCubit,
@@ -235,33 +186,22 @@ class _ExampleFormState extends State<_ExampleForm> {
               },
             ),
             const SizedBox(height: 16),
-            
+
             // Notifications Switch - Custom implementation with non-clickable row
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.grey),
-                borderRadius: BorderRadius.circular(4),
-              ),
+              decoration: BoxDecoration(border: Border.all(color: Colors.grey), borderRadius: BorderRadius.circular(4)),
               child: Row(
                 children: [
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'Enable notifications',
-                          style: TextStyle(
-                            fontSize: 16,
-                          ),
-                        ),
+                        const Text('Enable notifications', style: TextStyle(fontSize: 16)),
                         const SizedBox(height: 4),
                         Text(
                           'You can toggle this to enable or disable notifications',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.grey.shade600,
-                          ),
+                          style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
                         ),
                       ],
                     ),
@@ -278,24 +218,14 @@ class _ExampleFormState extends State<_ExampleForm> {
               ),
             ),
             const SizedBox(height: 16),
-            
+
             // Terms Checkbox - Custom implementation with non-clickable row
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.grey),
-                borderRadius: BorderRadius.circular(4),
-              ),
+              decoration: BoxDecoration(border: Border.all(color: Colors.grey), borderRadius: BorderRadius.circular(4)),
               child: Row(
                 children: [
-                  Expanded(
-                    child: const Text(
-                      'I agree to terms and conditions',
-                      style: TextStyle(
-                        fontSize: 16,
-                      ),
-                    ),
-                  ),
+                  Expanded(child: const Text('I agree to terms and conditions', style: TextStyle(fontSize: 16))),
                   Checkbox(
                     value: termsAccepted,
                     onChanged: (value) {
@@ -313,13 +243,10 @@ class _ExampleFormState extends State<_ExampleForm> {
             if (termsError != null)
               Padding(
                 padding: const EdgeInsets.only(left: 16, top: 4),
-                child: Text(
-                  termsError!,
-                  style: TextStyle(color: Theme.of(context).colorScheme.error, fontSize: 12),
-                ),
+                child: Text(termsError!, style: TextStyle(color: Theme.of(context).colorScheme.error, fontSize: 12)),
               ),
             const SizedBox(height: 24),
-            
+
             // Submit Button
             ElevatedButton(
               onPressed: () {
@@ -327,15 +254,13 @@ class _ExampleFormState extends State<_ExampleForm> {
                   _formCubit.submit();
                 }
               },
-              style: ElevatedButton.styleFrom(
-                minimumSize: const Size(double.infinity, 50),
-              ),
+              style: ElevatedButton.styleFrom(minimumSize: const Size(double.infinity, 50)),
               child: const Text('Submit Form'),
             ),
             const SizedBox(height: 24),
-            
+
             // Form Data Display
-            _FormDataDisplay(
+            FormDataColumn(
               notificationsEnabled: notificationsEnabled,
               termsAccepted: termsAccepted,
               nameCubit: _nameCubit,
@@ -347,65 +272,3 @@ class _ExampleFormState extends State<_ExampleForm> {
     );
   }
 }
-
-class _FormDataDisplay extends StatelessWidget {
-  final bool notificationsEnabled;
-  final bool termsAccepted;
-  final formwiz.FormFieldCubit<String> nameCubit;
-  final formwiz.FormFieldCubit<String> emailCubit;
-  
-  const _FormDataDisplay({
-    required this.notificationsEnabled,
-    required this.termsAccepted,
-    required this.nameCubit,
-    required this.emailCubit,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<formwiz.FormCubit, formwiz.FormCubitState>(
-      builder: (context, state) {
-        // Include the local state values
-        final displayValues = Map<String, dynamic>.from(state.values);
-        displayValues['notifications'] = notificationsEnabled;
-        displayValues['terms'] = termsAccepted;
-        
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Form Data:',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.grey.shade100,
-                borderRadius: BorderRadius.circular(4),
-                border: Border.all(color: Colors.grey.shade300),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Name: ${displayValues['name'] ?? ''}'),
-                  Text('Email: ${displayValues['email'] ?? ''}'),
-                  Text('Notifications Enabled: $notificationsEnabled'),
-                  Text('Terms Accepted: $termsAccepted'),
-                  const SizedBox(height: 8),
-                  Text('Valid: ${state.isValid}'),
-                  Text('Dirty: ${state.isDirty}'),
-                  Text('Submitted: ${state.hasBeenSubmitted}'),
-                ],
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
-} 

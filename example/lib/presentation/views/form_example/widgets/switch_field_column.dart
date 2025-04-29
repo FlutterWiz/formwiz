@@ -1,39 +1,31 @@
 import 'package:flutter/material.dart';
 
+import 'switch_field_data_column.dart';
+
 /// Example widget to showcase different configurations
 /// of the FormWizSwitch field.
-class SwitchExamplesWidget extends StatefulWidget {
-  const SwitchExamplesWidget({super.key});
+class SwitchFieldColumn extends StatefulWidget {
+  const SwitchFieldColumn({super.key});
 
   @override
-  State<SwitchExamplesWidget> createState() => _SwitchExamplesWidgetState();
+  State<SwitchFieldColumn> createState() => _SwitchFieldColumnState();
 }
 
-class _SwitchExamplesWidgetState extends State<SwitchExamplesWidget> {
+class _SwitchFieldColumnState extends State<SwitchFieldColumn> {
   // Use local state to manage switches
   bool basicSwitch = false;
   bool customColorsSwitch = true;
   bool leadingPositionSwitch = false;
-  
+
   @override
   Widget build(BuildContext context) {
     return Card(
       elevation: 2,
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Switch Field Examples',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 16),
-            
-            // Basic switch with local state
             Container(
               padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
               decoration: BoxDecoration(
@@ -46,17 +38,11 @@ class _SwitchExamplesWidgetState extends State<SwitchExamplesWidget> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'Basic Switch',
-                          style: TextStyle(fontSize: 16),
-                        ),
+                        const Text('Basic Switch', style: TextStyle(fontSize: 16)),
                         const SizedBox(height: 4),
                         Text(
                           'Default styling switch field',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.grey.shade600,
-                          ),
+                          style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
                         ),
                       ],
                     ),
@@ -72,9 +58,9 @@ class _SwitchExamplesWidgetState extends State<SwitchExamplesWidget> {
                 ],
               ),
             ),
-            
+
             const SizedBox(height: 16),
-            
+
             // Custom colors switch with local state
             Container(
               padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
@@ -88,18 +74,9 @@ class _SwitchExamplesWidgetState extends State<SwitchExamplesWidget> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'Custom Colors',
-                          style: TextStyle(fontSize: 16),
-                        ),
+                        const Text('Custom Colors', style: TextStyle(fontSize: 16)),
                         const SizedBox(height: 4),
-                        Text(
-                          'Switch with custom colors',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.grey.shade600,
-                          ),
-                        ),
+                        Text('Switch with custom colors', style: TextStyle(fontSize: 14, color: Colors.grey.shade600)),
                       ],
                     ),
                   ),
@@ -118,9 +95,9 @@ class _SwitchExamplesWidgetState extends State<SwitchExamplesWidget> {
                 ],
               ),
             ),
-            
+
             const SizedBox(height: 16),
-            
+
             // Leading position switch with local state
             Container(
               padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
@@ -143,17 +120,11 @@ class _SwitchExamplesWidgetState extends State<SwitchExamplesWidget> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'Leading Position',
-                          style: TextStyle(fontSize: 16),
-                        ),
+                        const Text('Leading Position', style: TextStyle(fontSize: 16)),
                         const SizedBox(height: 4),
                         Text(
                           'Switch positioned on the leading side',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.grey.shade600,
-                          ),
+                          style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
                         ),
                       ],
                     ),
@@ -161,23 +132,18 @@ class _SwitchExamplesWidgetState extends State<SwitchExamplesWidget> {
                 ],
               ),
             ),
-            
-            const SizedBox(height: 16),
-            
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Colors.grey.shade100,
-                borderRadius: BorderRadius.circular(4),
-              ),
-              child: Text(
-                'Switch Values: {basic_switch: $basicSwitch, custom_colors: $customColorsSwitch, leading_position: $leadingPositionSwitch}',
-                style: const TextStyle(fontFamily: 'monospace'),
-              ),
+
+            const SizedBox(height: 24),
+
+            // Use the new SwitchFieldDataColumn widget
+            SwitchFieldDataColumn(
+              basicSwitch: basicSwitch,
+              customColorsSwitch: customColorsSwitch,
+              leadingPositionSwitch: leadingPositionSwitch,
             ),
           ],
         ),
       ),
     );
   }
-} 
+}
