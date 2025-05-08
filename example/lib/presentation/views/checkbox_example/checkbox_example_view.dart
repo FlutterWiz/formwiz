@@ -35,7 +35,7 @@ class CheckboxExampleView extends StatelessWidget {
               SnackBar(content: Text('Form submitted: $values')),
             );
           },
-          child: Column(
+          child: const Column(
             children: [
               _ExampleCheckbox(
                 name: 'terms',
@@ -50,10 +50,9 @@ class CheckboxExampleView extends StatelessWidget {
               _ExampleCheckbox(
                 name: 'disabled',
                 labelText: 'This checkbox is disabled',
-                initialValue: false,
                 enabled: false,
               ),
-              const SizedBox(height: 24),
+              SizedBox(height: 24),
               _SubmitButton(formName: 'basic_form'),
             ],
           ),
@@ -100,6 +99,8 @@ class _ExampleFormState extends State<_ExampleForm> with ChangeNotifier {
   @override
   void dispose() {
     _forms.remove(widget.name);
+    // Make sure to call super.dispose() after cleaning up
+    notifyListeners();
     super.dispose();
   }
   
@@ -169,13 +170,9 @@ class _ExampleFormState extends State<_ExampleForm> with ChangeNotifier {
 class _ExampleCheckbox extends StatefulWidget {
   final String name;
   final String? labelText;
-  final bool? initialValue;
+  final bool initialValue;
   final bool required;
   final bool enabled;
-  final Color? activeColor;
-  final Color? checkColor;
-  final TextStyle? labelStyle;
-  final TextStyle? errorStyle;
 
   const _ExampleCheckbox({
     required this.name,
@@ -183,10 +180,6 @@ class _ExampleCheckbox extends StatefulWidget {
     this.initialValue = false,
     this.required = false,
     this.enabled = true,
-    this.activeColor,
-    this.checkColor,
-    this.labelStyle,
-    this.errorStyle,
   });
 
   @override
@@ -200,7 +193,7 @@ class _ExampleCheckboxState extends State<_ExampleCheckbox> {
   @override
   void initState() {
     super.initState();
-    _value = widget.initialValue ?? false;
+    _value = widget.initialValue;
     
     // Initialize form value after first frame when context is available
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -251,8 +244,6 @@ class _ExampleCheckboxState extends State<_ExampleCheckbox> {
               Checkbox(
                 value: _value,
                 onChanged: widget.enabled ? _handleValueChange : null,
-                activeColor: widget.activeColor,
-                checkColor: widget.checkColor,
               ),
               if (widget.labelText != null)
                 Expanded(
@@ -262,7 +253,9 @@ class _ExampleCheckboxState extends State<_ExampleCheckbox> {
                         : null,
                     child: Text(
                       widget.labelText!,
-                      style: widget.labelStyle,
+                      style: widget.labelText!.startsWith('*') ? 
+                          TextStyle(fontWeight: FontWeight.bold, color: theme.colorScheme.primary) : 
+                          null,
                     ),
                   ),
                 ),
@@ -273,8 +266,7 @@ class _ExampleCheckboxState extends State<_ExampleCheckbox> {
               padding: const EdgeInsets.only(left: 40.0, top: 4.0),
               child: Text(
                 errorText,
-                style: widget.errorStyle ?? 
-                  TextStyle(color: theme.colorScheme.error, fontSize: 12.0),
+                style: TextStyle(color: theme.colorScheme.error, fontSize: 12.0),
               ),
             ),
         ],
@@ -297,7 +289,7 @@ class _SubmitButton extends StatefulWidget {
 
 class _SubmitButtonState extends State<_SubmitButton> {
   bool _isValid = false;
-  late final _ExampleFormState? _formState;
+  _ExampleFormState? _formState;
   
   @override
   void initState() {
@@ -317,7 +309,7 @@ class _SubmitButtonState extends State<_SubmitButton> {
       _checkFormValidity();
       
       // Tell the form to notify us when it changes
-      _formState!.addListener(_onFormChanged);
+      _formState?.addListener(_onFormChanged);
     }
   }
   
@@ -338,9 +330,8 @@ class _SubmitButtonState extends State<_SubmitButton> {
   @override
   void dispose() {
     // Remove listener when widget is disposed
-    if (_formState != null) {
-      _formState!.removeListener(_onFormChanged);
-    }
+    _formState?.removeListener(_onFormChanged);
+    _formState = null;
     super.dispose();
   }
   
