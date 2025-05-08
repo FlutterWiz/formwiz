@@ -7,7 +7,7 @@ import 'package:formwiz/presentation/cubits/form_field/form_field_cubit.dart';
 import 'package:formwiz/presentation/cubits/form_field/form_field_state.dart';
 
 /// A switch field widget that integrates with FormWiz
-class FormWizSwitchField extends StatefulWidget {
+class FormWizToggleField extends StatefulWidget {
   /// Unique name for the field
   final String name;
 
@@ -33,7 +33,7 @@ class FormWizSwitchField extends StatefulWidget {
   final FocusNode? focusNode;
 
   /// Creates a new FormWizSwitchField
-  const FormWizSwitchField({
+  const FormWizToggleField({
     Key? key,
     required this.name,
     this.initialValue = false,
@@ -46,10 +46,10 @@ class FormWizSwitchField extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _FormWizSwitchFieldState createState() => _FormWizSwitchFieldState();
+  _FormWizToggleFieldState createState() => _FormWizToggleFieldState();
 }
 
-class _FormWizSwitchFieldState extends State<FormWizSwitchField> {
+class _FormWizToggleFieldState extends State<FormWizToggleField> {
   late final FormFieldCubit<bool> _fieldCubit;
   late final FocusNode _focusNode;
 
