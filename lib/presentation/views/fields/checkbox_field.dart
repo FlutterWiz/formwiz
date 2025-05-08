@@ -32,6 +32,33 @@ class FormWizCheckboxField extends StatefulWidget {
   /// Focus node for the field
   final FocusNode? focusNode;
 
+  /// Visual density of the checkbox
+  final VisualDensity? visualDensity;
+
+  /// Checkbox active color
+  final Color? activeColor;
+
+  /// Checkbox fill color
+  final WidgetStateProperty<Color?>? fillColor;
+
+  /// Checkbox check color
+  final Color? checkColor;
+
+  /// Checkbox overlay color
+  final WidgetStateProperty<Color?>? overlayColor;
+
+  /// Checkbox shape
+  final OutlinedBorder? shape;
+
+  /// Side of the checkbox
+  final BorderSide? side;
+
+  /// Style for the error text
+  final TextStyle? errorStyle;
+
+  /// Style for the label text
+  final TextStyle? labelStyle;
+
   /// Creates a new FormWizCheckboxField
   const FormWizCheckboxField({
     Key? key,
@@ -43,15 +70,27 @@ class FormWizCheckboxField extends StatefulWidget {
     this.validateOnChange = true,
     this.validateOnBlur = true,
     this.focusNode,
+    this.visualDensity,
+    this.activeColor,
+    this.fillColor,
+    this.checkColor,
+    this.overlayColor,
+    this.shape,
+    this.side,
+    this.errorStyle,
+    this.labelStyle,
   }) : super(key: key);
 
   @override
-  _FormWizCheckboxFieldState createState() => _FormWizCheckboxFieldState();
+  State<FormWizCheckboxField> createState() => _FormWizCheckboxFieldState();
 }
 
 class _FormWizCheckboxFieldState extends State<FormWizCheckboxField> {
   late final FormFieldCubit<bool> _fieldCubit;
   late final FocusNode _focusNode;
+
+  // Performance optimization: Check if the field is already registered with the form
+  bool _isRegistered = false;
 
   @override
   void initState() {
@@ -67,12 +106,32 @@ class _FormWizCheckboxFieldState extends State<FormWizCheckboxField> {
       validateOnBlur: widget.validateOnBlur,
     );
 
-    // Add field to form
-    final formCubit = context.read<FormCubit>();
-    formCubit.addField(_fieldCubit);
-
     // Setup focus listeners
     _focusNode.addListener(_handleFocusChange);
+
+    // Delay form registration until after the first frame to ensure context is available
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _registerWithForm();
+    });
+  }
+
+  void _registerWithForm() {
+    if (!_isRegistered && mounted) {
+      final formCubit = context.read<FormCubit>();
+      formCubit.addField(_fieldCubit);
+      _isRegistered = true;
+    }
+  }
+
+  @override
+  void didUpdateWidget(FormWizCheckboxField oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    // Check if validators changed and update if needed
+    if (widget.validators != oldWidget.validators) {
+      // Use the new updateValidators method we've added to FormFieldCubit
+      _fieldCubit.updateValidators(widget.validators);
+    }
   }
 
   @override
@@ -82,7 +141,11 @@ class _FormWizCheckboxFieldState extends State<FormWizCheckboxField> {
       _focusNode.dispose();
     }
     _focusNode.removeListener(_handleFocusChange);
-    _fieldCubit.close();
+
+    // Only close the cubit if we registered it
+    if (_isRegistered) {
+      _fieldCubit.close();
+    }
 
     super.dispose();
   }
@@ -95,12 +158,29 @@ class _FormWizCheckboxFieldState extends State<FormWizCheckboxField> {
     }
   }
 
+  void _handleValueChange(bool? value) {
+    _fieldCubit.updateValue(value ?? false);
+  }
+
+  void _toggleValue(FormFieldCubitState<bool> state) {
+    final newValue = !(state.model.value ?? false);
+    _fieldCubit.updateValue(newValue);
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<FormFieldCubit<bool>, FormFieldCubitState<bool>>(
       bloc: _fieldCubit,
+      buildWhen: (previous, current) {
+        // Performance optimization: Only rebuild if relevant properties change
+        return previous.model.value != current.model.value ||
+            previous.model.errorMessage != current.model.errorMessage ||
+            previous.model.touched != current.model.touched;
+      },
       builder: (context, state) {
         final errorText = state.model.shouldShowError ? state.model.errorMessage : null;
+        final theme = Theme.of(context);
+        final defaultErrorStyle = TextStyle(color: theme.colorScheme.error, fontSize: 12.0);
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -110,28 +190,35 @@ class _FormWizCheckboxFieldState extends State<FormWizCheckboxField> {
                 Checkbox(
                   focusNode: _focusNode,
                   value: state.model.value ?? false,
-                  onChanged: (value) {
-                    _fieldCubit.updateValue(value ?? false);
-                  },
+                  onChanged: state.model.enabled ? _handleValueChange : null,
+                  visualDensity: widget.visualDensity,
+                  activeColor: widget.activeColor,
+                  fillColor: widget.fillColor,
+                  checkColor: widget.checkColor,
+                  overlayColor: widget.overlayColor,
+                  shape: widget.shape,
+                  side: widget.side,
                 ),
                 if (widget.label != null)
-                  Expanded(child: widget.label!)
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: state.model.enabled ? () => _toggleValue(state) : null,
+                      child: widget.label!,
+                    ),
+                  )
                 else if (widget.labelText != null)
                   Expanded(
                     child: GestureDetector(
-                      onTap: () {
-                        final newValue = !(state.model.value ?? false);
-                        _fieldCubit.updateValue(newValue);
-                      },
-                      child: Text(widget.labelText!),
+                      onTap: state.model.enabled ? () => _toggleValue(state) : null,
+                      child: Text(widget.labelText!, style: widget.labelStyle),
                     ),
                   ),
               ],
             ),
             if (errorText != null)
               Padding(
-                padding: const EdgeInsets.only(left: 16.0),
-                child: Text(errorText, style: TextStyle(color: Theme.of(context).colorScheme.error, fontSize: 12.0)),
+                padding: const EdgeInsets.only(left: 16.0, top: 4.0),
+                child: Text(errorText, style: widget.errorStyle ?? defaultErrorStyle),
               ),
           ],
         );

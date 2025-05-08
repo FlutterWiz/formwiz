@@ -172,6 +172,27 @@ class FormFieldCubit<T> extends Cubit<FormFieldCubitState<T>> {
     emit(FormFieldInvalid<T>(state.model.copyWith(errorMessage: errorMessage, touched: true)));
   }
 
+  /// Update validators for this field
+  void updateValidators(List<FormWizValidator<T>> validators) {
+    // Only update if validators changed
+    if (validators != this.validators) {
+      emit(
+        FormFieldValid<T>(
+          state.model.copyWith(
+            validators: validators,
+            // Clear error message to trigger revalidation if needed
+            errorMessage: null,
+          ),
+        ),
+      );
+      
+      // Validate with new validators if validation on change is enabled
+      if (validateOnChange) {
+        validate(state.model.value, forceValidation: true);
+      }
+    }
+  }
+
   /// Cancel any debounce timer
   void _cancelDebounce() {
     _debounceTimer?.cancel();
