@@ -57,9 +57,12 @@ class _FormWizCheckboxFieldState extends State<FormWizCheckboxField> {
   @override
   void initState() {
     super.initState();
-    
+    _initCubit();
+  }
+  
+  void _initCubit() {
     // Try to get form cubit from context
-    final formCubit = context.read<FormCubit?>();
+    final formCubit = _getFormCubit();
     
     _cubit = CheckboxFieldCubit(
       name: widget.name,
@@ -67,6 +70,14 @@ class _FormWizCheckboxFieldState extends State<FormWizCheckboxField> {
       validators: widget.validators,
       formCubit: formCubit,
     );
+  }
+  
+  FormCubit? _getFormCubit() {
+    try {
+      return context.read<FormCubit?>();
+    } catch (_) {
+      return null;
+    }
   }
 
   @override
@@ -79,19 +90,16 @@ class _FormWizCheckboxFieldState extends State<FormWizCheckboxField> {
   void didUpdateWidget(covariant FormWizCheckboxField oldWidget) {
     super.didUpdateWidget(oldWidget);
     
-    // If key properties changed, recreate the cubit
-    if (oldWidget.name != widget.name ||
-        oldWidget.validators != widget.validators) {
+    // Only recreate the cubit if key properties changed
+    if (_shouldRecreateField(oldWidget)) {
       _cubit.close();
-      
-      final formCubit = context.read<FormCubit?>();
-      _cubit = CheckboxFieldCubit(
-        name: widget.name,
-        initialValue: widget.initialValue,
-        validators: widget.validators,
-        formCubit: formCubit,
-      );
+      _initCubit();
     }
+  }
+  
+  bool _shouldRecreateField(FormWizCheckboxField oldWidget) {
+    return oldWidget.name != widget.name || 
+           oldWidget.validators != widget.validators;
   }
 
   @override
@@ -100,67 +108,80 @@ class _FormWizCheckboxFieldState extends State<FormWizCheckboxField> {
       value: _cubit,
       child: BlocBuilder<CheckboxFieldCubit, CheckboxFieldState>(
         builder: (context, state) {
-          // Custom builder takes precedence
-          if (widget.builder != null) {
-            return widget.builder!(
-              context,
-              state.value,
-              state.isValid,
-              state.error,
-              (value) {
-                if (!widget.disabled) {
-                  _cubit.setValue(value);
-                }
-              },
-            );
-          }
-
-          // Default checkbox implementation
-          return Theme(
-            data: Theme.of(context).copyWith(
-              checkboxTheme: widget.checkboxTheme,
-            ),
-            child: FormField<bool>(
-              initialValue: state.value,
-              validator: (_) => state.error,
-              builder: (formFieldState) {
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Checkbox(
-                          value: state.value,
-                          onChanged: widget.disabled
-                              ? null
-                              : (_) => _cubit.toggle(),
-                        ),
-                        if (widget.labelText != null)
-                          Expanded(
-                            child: GestureDetector(
-                              onTap: widget.disabled ? null : () => _cubit.toggle(),
-                              child: Text(widget.labelText!),
-                            ),
-                          ),
-                      ],
-                    ),
-                    if (state.error != null)
-                      Padding(
-                        padding: const EdgeInsets.only(left: 8.0),
-                        child: Text(
-                          state.error!,
-                          style: TextStyle(
-                            color: Theme.of(context).colorScheme.error,
-                            fontSize: 12,
-                          ),
-                        ),
-                      ),
-                  ],
-                );
-              },
-            ),
+          return widget.builder != null
+              ? _buildCustomCheckbox(context, state)
+              : _buildDefaultCheckbox(context, state);
+        },
+      ),
+    );
+  }
+  
+  Widget _buildCustomCheckbox(BuildContext context, CheckboxFieldState state) {
+    return widget.builder!(
+      context,
+      state.value,
+      state.isValid,
+      // Only show error if field has been touched
+      state.touched ? state.error : null,
+      (value) {
+        if (!widget.disabled) {
+          _cubit.setValue(value);
+        }
+      },
+    );
+  }
+  
+  Widget _buildDefaultCheckbox(BuildContext context, CheckboxFieldState state) {
+    return Theme(
+      data: Theme.of(context).copyWith(
+        checkboxTheme: widget.checkboxTheme,
+      ),
+      child: FormField<bool>(
+        initialValue: state.value,
+        validator: (_) => state.touched ? state.error : null,
+        builder: (formFieldState) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildCheckboxRow(state),
+              if (state.touched && state.error != null)
+                _buildErrorMessage(context, state.error!),
+            ],
           );
         },
+      ),
+    );
+  }
+  
+  Widget _buildCheckboxRow(CheckboxFieldState state) {
+    return Row(
+      children: [
+        Checkbox(
+          value: state.value,
+          onChanged: widget.disabled
+              ? null
+              : (_) => _cubit.toggle(),
+        ),
+        if (widget.labelText != null)
+          Expanded(
+            child: GestureDetector(
+              onTap: widget.disabled ? null : () => _cubit.toggle(),
+              child: Text(widget.labelText!),
+            ),
+          ),
+      ],
+    );
+  }
+  
+  Widget _buildErrorMessage(BuildContext context, String errorText) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 8.0),
+      child: Text(
+        errorText,
+        style: TextStyle(
+          color: Theme.of(context).colorScheme.error,
+          fontSize: 12,
+        ),
       ),
     );
   }

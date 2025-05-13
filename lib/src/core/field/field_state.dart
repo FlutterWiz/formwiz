@@ -5,10 +5,19 @@ import 'package:formwiz/src/core/field/field_value.dart';
 
 /// Base state for field cubits
 abstract class FieldState<T> extends Equatable {
+  /// Field name (used as key in form data)
   final String name;
+  
+  /// Current value
   final T value;
+  
+  /// Whether the field has been modified
   final bool isDirty;
+  
+  /// Whether the user has interacted with the field
   final bool touched;
+  
+  /// Validation error message, if any
   final String? error;
 
   const FieldState({
@@ -84,6 +93,7 @@ class CheckboxFieldState extends FieldState<bool> {
 
 /// Field state for checkbox group fields
 class CheckboxGroupFieldState extends FieldState<List<String>> {
+  /// Available options for this checkbox group
   final List<String> options;
   
   const CheckboxGroupFieldState({

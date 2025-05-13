@@ -5,7 +5,7 @@ import 'package:formwiz_example/presentation/views/checkbox/sections/validation_
 import 'package:formwiz_example/presentation/views/checkbox/sections/custom_checkbox_section.dart';
 
 /// Body for the checkbox examples view
-class CheckboxViewBody extends StatelessWidget {
+class CheckboxViewBody extends StatelessWidget { 
   /// Creates a new checkbox view body
   const CheckboxViewBody({super.key});
 

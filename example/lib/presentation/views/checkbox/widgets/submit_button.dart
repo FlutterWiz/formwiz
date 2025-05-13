@@ -13,7 +13,7 @@ class SubmitButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return FormWizSubmitButton(
       text: text,
-      width: double.infinity,
+          width: double.infinity,
     );
   }
 }

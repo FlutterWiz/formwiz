@@ -14,7 +14,7 @@ class ValidationSection extends StatelessWidget {
       title: 'Validation Examples',
       description: 'Checkbox fields with validation rules',
       child: ExampleForm(
-        description: 'Try submitting the form without accepting the required checkbox:',
+        description: 'The submit button will only be enabled when validation passes. Try submitting the form without accepting the required checkbox:',
         submitButtonText: 'Submit with validation',
         showValidationMessage: true,
         children: [
@@ -35,6 +35,32 @@ class ValidationSection extends StatelessWidget {
             validators: [
               FormWizValidator.required('Please select at least one hobby'),
             ],
+          ),
+          
+          const SizedBox(height: 16),
+          
+          // Helper text explaining validation behavior
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Colors.blue.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(4),
+            ),
+            child: const Row(
+              children: [
+                Icon(Icons.info_outline, color: Colors.blue, size: 18),
+                SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'The submit button will be disabled until all validation rules are satisfied',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.blue,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),
