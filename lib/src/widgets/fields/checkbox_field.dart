@@ -7,6 +7,9 @@ import 'package:formwiz/src/presentation/cubits/form/form_cubit.dart';
 import 'package:formwiz/src/core/field/field_state.dart';
 
 /// A single checkbox field for use with FormWiz
+///
+/// This widget provides a checkbox with label and error message display.
+/// It can be validated and integrates with FormWiz forms.
 class FormWizCheckboxField extends StatefulWidget {
   /// Field name (used as key in form data)
   final String name;
@@ -24,6 +27,8 @@ class FormWizCheckboxField extends StatefulWidget {
   final List<FieldValidator<bool>> validators;
 
   /// Custom builder for the checkbox
+  ///
+  /// Allows complete customization of the checkbox appearance and behavior.
   final Widget Function(
     BuildContext context,
     bool value,
@@ -36,6 +41,14 @@ class FormWizCheckboxField extends StatefulWidget {
   final CheckboxThemeData? checkboxTheme;
 
   /// Creates a new checkbox field
+  ///
+  /// [name] is required and serves as the identifier in form data.
+  /// [labelText] is optional and appears next to the checkbox.
+  /// [initialValue] determines if the checkbox starts checked or unchecked.
+  /// [disabled] when true prevents user interaction.
+  /// [validators] are functions that validate the checkbox value.
+  /// [builder] allows custom rendering of the checkbox.
+  /// [checkboxTheme] provides styling for the checkbox when using the default appearance.
   const FormWizCheckboxField({
     super.key,
     required this.name,
@@ -60,6 +73,7 @@ class _FormWizCheckboxFieldState extends State<FormWizCheckboxField> {
     _initCubit();
   }
   
+  /// Initialize the field cubit with appropriate configuration
   void _initCubit() {
     // Try to get form cubit from context
     final formCubit = _getFormCubit();
@@ -72,11 +86,12 @@ class _FormWizCheckboxFieldState extends State<FormWizCheckboxField> {
     );
   }
   
+  /// Safely retrieves the FormCubit from context
   FormCubit? _getFormCubit() {
     try {
       return context.read<FormCubit?>();
     } catch (_) {
-      return null;
+      return null; // No form found or provider error
     }
   }
 
@@ -97,6 +112,7 @@ class _FormWizCheckboxFieldState extends State<FormWizCheckboxField> {
     }
   }
   
+  /// Determines if we need to recreate the field cubit
   bool _shouldRecreateField(FormWizCheckboxField oldWidget) {
     return oldWidget.name != widget.name || 
            oldWidget.validators != widget.validators;
@@ -116,6 +132,7 @@ class _FormWizCheckboxFieldState extends State<FormWizCheckboxField> {
     );
   }
   
+  /// Builds custom checkbox using the provided builder function
   Widget _buildCustomCheckbox(BuildContext context, CheckboxFieldState state) {
     return widget.builder!(
       context,
@@ -131,6 +148,7 @@ class _FormWizCheckboxFieldState extends State<FormWizCheckboxField> {
     );
   }
   
+  /// Builds the default checkbox implementation
   Widget _buildDefaultCheckbox(BuildContext context, CheckboxFieldState state) {
     return Theme(
       data: Theme.of(context).copyWith(
@@ -153,6 +171,7 @@ class _FormWizCheckboxFieldState extends State<FormWizCheckboxField> {
     );
   }
   
+  /// Builds the checkbox and label row
   Widget _buildCheckboxRow(CheckboxFieldState state) {
     return Row(
       children: [
@@ -173,6 +192,7 @@ class _FormWizCheckboxFieldState extends State<FormWizCheckboxField> {
     );
   }
   
+  /// Builds the error message display
   Widget _buildErrorMessage(BuildContext context, String errorText) {
     return Padding(
       padding: const EdgeInsets.only(left: 8.0),

@@ -7,6 +7,9 @@ import 'package:formwiz/src/presentation/cubits/fields/checkbox_group_field_cubi
 import 'package:formwiz/src/presentation/cubits/form/form_cubit.dart';
 
 /// A group of checkboxes that can be selected independently
+///
+/// This widget provides multiple checkbox options that can be selected simultaneously.
+/// It supports validation and integrates with FormWiz forms.
 class FormWizCheckboxGroupField extends StatefulWidget {
   /// Field name (used as key in form data)
   final String name;
@@ -30,6 +33,8 @@ class FormWizCheckboxGroupField extends StatefulWidget {
   final List<FieldValidator<List<String>>> validators;
 
   /// Custom builder for the checkbox group
+  ///
+  /// Allows complete customization of the checkbox group appearance and behavior.
   final Widget Function(
     BuildContext context,
     List<String> selectedValues,
@@ -40,6 +45,8 @@ class FormWizCheckboxGroupField extends StatefulWidget {
   )? builder;
 
   /// Custom builder for individual options
+  ///
+  /// Allows customizing the appearance of each option while using the default group layout.
   final Widget Function(
     BuildContext context,
     String option,
@@ -52,6 +59,17 @@ class FormWizCheckboxGroupField extends StatefulWidget {
   final CheckboxThemeData? checkboxTheme;
 
   /// Creates a new checkbox group field
+  ///
+  /// [name] is required and serves as the identifier in form data.
+  /// [options] is the list of available checkbox options.
+  /// [labelText] is optional and appears as the group title.
+  /// [optionLabels] maps option values to display labels if they differ.
+  /// [initialValues] are pre-selected options.
+  /// [disabled] when true prevents user interaction with all options.
+  /// [validators] are functions that validate the selected values.
+  /// [builder] allows custom rendering of the entire group.
+  /// [optionBuilder] allows custom rendering of individual options.
+  /// [checkboxTheme] provides styling for the checkboxes when using the default appearance.
   const FormWizCheckboxGroupField({
     super.key,
     required this.name,
@@ -79,6 +97,7 @@ class _FormWizCheckboxGroupFieldState extends State<FormWizCheckboxGroupField> {
     _initCubit();
   }
   
+  /// Initialize the field cubit with appropriate configuration
   void _initCubit() {
     // Try to get form cubit from context
     final formCubit = _getFormCubit();
@@ -92,11 +111,12 @@ class _FormWizCheckboxGroupFieldState extends State<FormWizCheckboxGroupField> {
     );
   }
   
+  /// Safely retrieves the FormCubit from context
   FormCubit? _getFormCubit() {
     try {
       return context.read<FormCubit?>();
     } catch (_) {
-      return null;
+      return null; // No form found or provider error
     }
   }
 
@@ -117,6 +137,7 @@ class _FormWizCheckboxGroupFieldState extends State<FormWizCheckboxGroupField> {
     }
   }
   
+  /// Determines if we need to recreate the field cubit
   bool _shouldRecreateField(FormWizCheckboxGroupField oldWidget) {
     return oldWidget.name != widget.name || 
            oldWidget.options != widget.options ||
@@ -137,6 +158,7 @@ class _FormWizCheckboxGroupFieldState extends State<FormWizCheckboxGroupField> {
     );
   }
   
+  /// Builds custom checkbox group using the provided builder function
   Widget _buildCustomCheckboxGroup(BuildContext context, CheckboxGroupFieldState state) {
     return widget.builder!(
       context,
@@ -153,6 +175,7 @@ class _FormWizCheckboxGroupFieldState extends State<FormWizCheckboxGroupField> {
     );
   }
   
+  /// Builds the default checkbox group implementation
   Widget _buildDefaultCheckboxGroup(BuildContext context, CheckboxGroupFieldState state) {
     return Theme(
       data: Theme.of(context).copyWith(
@@ -177,9 +200,10 @@ class _FormWizCheckboxGroupFieldState extends State<FormWizCheckboxGroupField> {
     );
   }
   
+  /// Builds the group title/label
   Widget _buildGroupLabel(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 8.0),
+      padding: const EdgeInsets.only(bottom: 8),
       child: Text(
         widget.labelText!,
         style: Theme.of(context).textTheme.titleMedium,
@@ -187,6 +211,7 @@ class _FormWizCheckboxGroupFieldState extends State<FormWizCheckboxGroupField> {
     );
   }
   
+  /// Builds an individual checkbox option
   Widget _buildCheckboxOption(BuildContext context, CheckboxGroupFieldState state, String option) {
     final isSelected = state.value.contains(option);
     final label = widget.optionLabels?[option] ?? option;
@@ -221,6 +246,7 @@ class _FormWizCheckboxGroupFieldState extends State<FormWizCheckboxGroupField> {
     );
   }
   
+  /// Builds the error message display
   Widget _buildErrorMessage(BuildContext context, String errorText) {
     return Padding(
       padding: const EdgeInsets.only(top: 8.0, left: 8.0),
