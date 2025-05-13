@@ -1,22 +1,21 @@
 import 'package:flutter/material.dart';
-import 'package:formwiz_example/presentation/views/checkbox_example/checkbox_example_view.dart';
+import 'package:formwiz_example/presentation/core/app_theme.dart';
+import 'package:formwiz_example/presentation/views/home/home_view.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(const FormWizExampleApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class FormWizExampleApp extends StatelessWidget {
+  const FormWizExampleApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'FormWiz Checkbox Example',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-      ),
-      home: const CheckboxExampleView(),
+      title: 'FormWiz Example',
+      theme: AppTheme.lightTheme,
+      darkTheme: AppTheme.darkTheme,
+      home: const HomeView(),
     );
   }
 }
